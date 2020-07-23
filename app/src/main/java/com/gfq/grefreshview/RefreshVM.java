@@ -38,7 +38,6 @@ public class RefreshVM<T> extends ViewModel implements RefreshVMEvent<T> {
     }
 
     public void start(RefreshView<T> refreshView) {
-       
         List<T> beans = getStateDataList();
         if (beans == null) {
             refreshView.autoRefresh();

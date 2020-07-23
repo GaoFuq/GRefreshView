@@ -74,7 +74,7 @@ import com.scwang.smartrefresh.layout.api.RefreshLayout;
  *                     }
  *
  *                     @Override
- *                     public void setPresentor(SuperBindingViewHolder holder, HotSpecBean data, int position) {
+ *                     public void onBindView(SuperBindingViewHolder holder, HotSpecBean data, int position) {
  *                     }
  *                 });
  *
@@ -143,7 +143,7 @@ public class RefreshViewHelper<T> {
         adapter = new RVBindingAdapter<T>(context,var) {
 
             @Override
-            public void setPresentor(SuperBindingViewHolder holder, int position) {
+            public void onBindView(SuperBindingViewHolder holder, int position) {
                 callBack.setPresentor(holder,getDataList().get(position),position);
             }
 
