@@ -16,7 +16,7 @@ import java.util.List;
  * 2019/8/13  17:01
  * 作用 : recycleView 的 dataBinding 通用adapter
  */
-public abstract class RVBindingAdapter<T> extends RecyclerView.Adapter<SuperBindingViewHolder> {
+ abstract class RVBindingAdapter<T> extends RecyclerView.Adapter<SuperBindingViewHolder> {
 
 
     protected Context mContext;
@@ -46,12 +46,12 @@ public abstract class RVBindingAdapter<T> extends RecyclerView.Adapter<SuperBind
             //立即执行绑定
             holder.getBinding().executePendingBindings();
         }
-        setPresentor(holder, position);
+        onBindView(holder, position);
     }
 
 
     //设置item里面的view的事件
-    public abstract void setPresentor(SuperBindingViewHolder holder, int position);
+    public abstract void onBindView(SuperBindingViewHolder holder, int position);
 
     //设置item布局文件id
     public abstract int getLayoutId();

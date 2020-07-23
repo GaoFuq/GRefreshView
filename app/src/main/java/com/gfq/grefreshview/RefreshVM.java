@@ -26,6 +26,9 @@ public class RefreshVM<T> extends ViewModel implements RefreshVMEvent<T> {
 
     @Override
     public void onLoadMore(List<T> list) {
+        if (dataList == null) {
+            dataList = new ArrayList<>();
+        }
         dataList.addAll(list);
     }
 
@@ -35,7 +38,6 @@ public class RefreshVM<T> extends ViewModel implements RefreshVMEvent<T> {
     }
 
     public void start(RefreshView<T> refreshView) {
-        refreshView.autoRefresh();
         List<T> beans = getStateDataList();
         if (beans == null) {
             refreshView.autoRefresh();

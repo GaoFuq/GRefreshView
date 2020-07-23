@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * ViewHolder基类
  */
-public class SuperBindingViewHolder<T extends ViewDataBinding> extends RecyclerView.ViewHolder {
+class SuperBindingViewHolder<T extends ViewDataBinding> extends RecyclerView.ViewHolder {
     public  T getBinding() {
         return binding;
     }
