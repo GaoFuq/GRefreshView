@@ -1,5 +1,6 @@
 package com.gfq.grefreshview.net;
 
+import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
 
@@ -29,7 +30,15 @@ public class RefreshViewAPIService {
     private String cacheDirectory = Environment.getExternalStorageDirectory() + "/refresh";
     private Cache cache = new Cache(new File(cacheDirectory), cacheSize);
 
-    public static void init(APIConfig apiConfig){
+    private RefreshViewAPIService() {
+    }
+    private static class Inner{
+        private static final RefreshViewAPIService instance=new RefreshViewAPIService();
+    }
+    public static RefreshViewAPIService getInstance(){
+        return Inner.instance;
+    }
+    public  void init(APIConfig apiConfig){
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient mClient = new OkHttpClient.Builder()
@@ -49,7 +58,7 @@ public class RefreshViewAPIService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
-//        apiInterface = retrofit.create(RefreshViewAPI.class);
+        apiInterface = retrofit.create(RefreshViewAPI.class);
     }
 
 
