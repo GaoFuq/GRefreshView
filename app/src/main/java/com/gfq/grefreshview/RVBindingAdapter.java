@@ -16,7 +16,7 @@ import java.util.List;
  * 2019/8/13  17:01
  * 作用 : recycleView 的 dataBinding 通用adapter
  */
- abstract class RVBindingAdapter<T> extends RecyclerView.Adapter<SuperBindingViewHolder> {
+ public abstract class RVBindingAdapter<T> extends RecyclerView.Adapter<SuperBindingViewHolder> {
 
 
     protected Context mContext;

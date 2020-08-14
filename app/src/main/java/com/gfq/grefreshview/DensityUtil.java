@@ -7,7 +7,7 @@ import android.content.res.Resources;
  * on {2019/10/15} {17:37}
  * desctapion:
  */
-public class DensityUtil {
+class DensityUtil {
 
     float density;
 
