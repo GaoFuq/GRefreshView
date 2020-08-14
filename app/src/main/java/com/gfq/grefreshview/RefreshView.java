@@ -47,6 +47,10 @@ public class RefreshView<T> extends FrameLayout {
     private View noDataView;
     private boolean isAutoRefreshOnStart = true;
 
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
+    }
+
     public SmartRefreshLayout getSmartRefreshLayout() {
         return smartRefreshLayout;
     }
