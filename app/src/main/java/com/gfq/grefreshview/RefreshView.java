@@ -11,6 +11,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,13 +40,13 @@ public class RefreshView<T> extends FrameLayout {
     private int totalCount = 1000;//数据总量
     private RecyclerView recyclerView;
     private SmartRefreshLayout smartRefreshLayout;
-    private FrameLayout container;
+    private NestedScrollView container;
+//    private FrameLayout container;
     private RVBindingAdapter<T> adapter;
     private LinearLayoutManager linearLayoutManager;
 
     private NetDisconnectedView netDisconnectedView;
     private View noDataView;
-    private boolean isAutoRefreshOnStart = true;
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
@@ -115,7 +116,7 @@ public class RefreshView<T> extends FrameLayout {
     }
 
     private void initThis() {
-        View view = inflate(context, R.layout.refreshview, this);
+        View view = inflate(context, R.layout.refreshview_nested, this);
         smartRefreshLayout = view.findViewById(R.id.smartrefresh);
         recyclerView = view.findViewById(R.id.recycleView);
         container = view.findViewById(R.id.container);
