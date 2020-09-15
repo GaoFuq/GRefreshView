@@ -12,7 +12,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,7 +48,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     private RefreshView<T, VB> refreshView;
     private LinearLayoutManager linearLayoutManager;
 
-    private NetDisconnectedView netDisconnectedView;
+    private View noNetPage;
     private View noDataPage;
     private View errorPage;
 
@@ -69,9 +68,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         return smartRefreshLayout;
     }
 
-    public void setNetDisconnectedView(NetDisconnectedView netDisconnectedView) {
-        this.netDisconnectedView = netDisconnectedView;
-    }
+
 
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
@@ -104,6 +101,10 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         initThis();
     }
 
+    public void setNoNetPage(View noNetPage) {
+        this.noNetPage = noNetPage;
+    }
+
     public void setNoDataPage(View noDataPage) {
         this.noDataPage = noDataPage;
     }
@@ -130,7 +131,6 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     public void setData(List<T> data) {
         if (data == null) return;
         adapter.refresh(data);
-        currentPage = startPage + 1;
     }
 
     private void initThis() {
@@ -156,7 +156,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
                     doLoadMore(refreshLayout);
                 } else {
                     refreshLayout.finishLoadMore(false);
-                    addNetDisconnectedView(Type.loadMore);
+                    addNoNetPage(Type.loadMore);
                 }
 
             }
@@ -168,7 +168,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
                     doRefresh(refreshLayout);
                 } else {
                     refreshLayout.finishRefresh(false);
-                    addNetDisconnectedView(Type.refresh);
+                    addNoNetPage(Type.refresh);
                 }
             }
         });
@@ -199,7 +199,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
                 return;
             }
 //            refreshViewListener.requestRefresh(currentPage, pageSize, refreshLayout, adapter);
-            refreshViewListener.requestRefresh2(currentPage, pageSize);
+            refreshViewListener.requestRefresh(currentPage, pageSize);
 
         }
     }
@@ -216,7 +216,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
                 return;
             }
 //            refreshViewListener.requestLoadMore(currentPage, pageSize, refreshLayout, adapter);
-            refreshViewListener.requestLoadMore2(currentPage, pageSize);
+            refreshViewListener.requestLoadMore(currentPage, pageSize);
         }
     }
 
@@ -267,15 +267,15 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
 
     private void removeNetDisconnectedView() {
-        if (netDisconnectedView == null) {
+        if (noNetPage == null) {
             return;
         }
-        ViewGroup parent = (ViewGroup) netDisconnectedView.getParent();
+        ViewGroup parent = (ViewGroup) noNetPage.getParent();
         if (parent != null) {
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    container.removeView(netDisconnectedView);
+                    container.removeView(noNetPage);
                 }
             }, 500);
         }
@@ -284,15 +284,15 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         }
     }
 
-    private void addNetDisconnectedView(Type type) {
-        if (netDisconnectedView == null) {
+    private void addNoNetPage(Type type) {
+        if (noNetPage == null) {
             return;
         }
-        ViewGroup parent = (ViewGroup) netDisconnectedView.getParent();
+        ViewGroup parent = (ViewGroup) noNetPage.getParent();
         if (parent == null) {
             LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            container.addView(netDisconnectedView, params);
-            netDisconnectedView.setType(type);
+            container.addView(noNetPage, params);
+//            noNetPage.setType(type);
         }
         if (netListener != null) {
             netListener.onLoseNet();
@@ -363,13 +363,10 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
 
     public interface RefreshViewListener<T, VB extends ViewDataBinding> {
-        void requestLoadMore(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T, VB> adapter);
 
-        void requestLoadMore2(int currentPage, int pageSize);
+        void requestLoadMore(int currentPage, int pageSize);
 
-        void requestRefresh(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T, VB> adapter);
-
-        void requestRefresh2(int currentPage, int pageSize);
+        void requestRefresh(int currentPage, int pageSize);
 
         void bindView(BindingViewHolder<VB> holder, List<T> dataList, int position);
     }

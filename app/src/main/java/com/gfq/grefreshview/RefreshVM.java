@@ -33,17 +33,17 @@ public class RefreshVM<T> extends ViewModel implements RefreshVMEvent<T> {
     }
 
     @Override
-    public List<T> getStateDataList() {
+    public List<T> getDataList() {
         return dataList;
     }
 
-//    public void start(RefreshView refreshView) {
-//        List<T> beans = getStateDataList();
-//        if (beans == null) {
-//            refreshView.autoRefresh();
-//        } else {
-//            refreshView.setData(beans);
-//        }
-//    }
+    public void start(RefreshView refreshView) {
+        if (dataList == null) {
+            refreshView.autoRefresh();
+        } else {
+            refreshView.setData(dataList);
+            refreshView.setCurrentPage(2);
+        }
+    }
 
 }

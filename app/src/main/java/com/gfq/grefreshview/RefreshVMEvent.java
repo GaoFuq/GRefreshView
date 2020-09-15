@@ -13,5 +13,5 @@ public interface RefreshVMEvent<T> {
 
     void onLoadMore(List<T> list);
 
-    List<T> getStateDataList();
+    List<T> getDataList();
 }
