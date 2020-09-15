@@ -41,7 +41,7 @@ public class RefreshVM<T> extends ViewModel implements RefreshVMEvent<T> {
         if (dataList == null) {
             refreshView.autoRefresh();
         } else {
-            refreshView.setData(dataList);
+            refreshView.setDataList(dataList);
             refreshView.setCurrentPage(2);
         }
     }

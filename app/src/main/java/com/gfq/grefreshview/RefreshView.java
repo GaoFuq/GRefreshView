@@ -113,6 +113,11 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         this.noDataPage = LayoutInflater.from(context).inflate(noDataPageLayout, null, false);
     }
 
+    //在bindView回调中，改变数据源，可以调用该方法刷新界面
+    public void notifyAdapterDataSetChanged(){
+        adapter.notifyDataSetChanged();
+    }
+
     public void showNoDataView() {
         removeNoDataView();
         container.addView(noDataPage, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -128,9 +133,9 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         }
     }
 
-    public void setData(List<T> data) {
+    public void setDataList(List<T> data) {
         if (data == null) return;
-        adapter.refresh(data);
+        adapter.setDataList(data);
     }
 
     private void initThis() {
@@ -234,13 +239,13 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     public void setRefreshDataList(List<T> dataList) {
         if (dataList != null && dataList.size() > 0) {
             removeNoDataView();
-            adapter.refresh(dataList);
+            adapter.setDataList(dataList);
             if (vm != null) {
                 vm.onRefresh(dataList);
             }
         } else {
             refreshView.showNoDataView();
-            adapter.refresh(Collections.emptyList());
+            adapter.setDataList(Collections.emptyList());
             if (vm != null) {
                 vm.onRefresh(Collections.emptyList());
             }
@@ -251,7 +256,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     public void setLoadMoreDataList(List<T> dataList) {
         if (dataList != null && dataList.size() > 0) {
             removeNoDataView();
-            adapter.loadMore(dataList);
+            adapter.addAll(dataList);
             smartRefreshLayout.finishLoadMore(true);
             if (vm != null) {
                 vm.onLoadMore(dataList);
@@ -330,13 +335,6 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         recyclerView.addItemDecoration(new GridSpaceItemDecoration(spanCount, DensityUtil.dp2px(rowSpacing), DensityUtil.dp2px(columnSpacing)));
         return this;
     }
-
-
-    public RefreshView<T, VB> setGridLayoutManager(int column, int orientation) {
-        recyclerView.setLayoutManager(new GridLayoutManager(context, column, orientation, false));
-        return this;
-    }
-
 
     public RefreshView<T, VB> setAdapter(BindingAdapter<T, VB> adapter) {
         this.adapter = adapter;

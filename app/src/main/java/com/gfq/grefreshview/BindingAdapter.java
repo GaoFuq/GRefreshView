@@ -68,13 +68,13 @@ import java.util.List;
         return mDataList;
     }
 
-    public void refresh(Collection<T> list) {
+    public void setDataList(Collection<T> list) {
         this.mDataList.clear();
         this.mDataList.addAll(list);
         notifyDataSetChanged();
     }
 
-    public void loadMore(Collection<T> list) {
+    public void addAll(Collection<T> list) {
         int lastIndex = this.mDataList.size();
         if (this.mDataList.addAll(list)) {
             notifyItemRangeInserted(lastIndex, list.size());
