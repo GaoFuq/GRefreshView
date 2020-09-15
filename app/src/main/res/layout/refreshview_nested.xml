@@ -5,13 +5,18 @@
     android:layout_height="match_parent">
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycleView"
+        <FrameLayout
+            android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycleView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+
     </androidx.core.widget.NestedScrollView>
 </com.scwang.smartrefresh.layout.SmartRefreshLayout>
