@@ -4,10 +4,12 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
@@ -42,7 +44,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     private int totalCount = 1000;//数据总量
     private RecyclerView recyclerView;
     private SmartRefreshLayout smartRefreshLayout;
-    private NestedScrollView container;
+//    private NestedScrollView container;
     private BindingAdapter<T, VB> adapter;
     private RefreshView<T, VB> refreshView;
     private LinearLayoutManager linearLayoutManager;
@@ -106,9 +108,14 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         this.noDataPage = noDataPage;
     }
 
+    public void setNoDataPage(@LayoutRes int noDataPageLayout) {
+        this.noDataPage = LayoutInflater.from(context).inflate(noDataPageLayout, null, false);
+    }
+
     public void showNoDataView() {
         removeNoDataView();
-        container.addView(noDataPage, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+//        container.addView(noDataPage, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        smartRefreshLayout.addView(noDataPage, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     }
 
     public void removeNoDataView() {
@@ -117,7 +124,8 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         }
         ViewGroup parent = (ViewGroup) noDataPage.getParent();
         if (parent != null) {
-            container.removeView(noDataPage);
+//            container.removeView(noDataPage);
+            smartRefreshLayout.removeView(noDataPage);
         }
     }
 
@@ -131,7 +139,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         View view = inflate(context, R.layout.refreshview_nested, this);
         smartRefreshLayout = view.findViewById(R.id.smartrefresh);
         recyclerView = view.findViewById(R.id.recycleView);
-        container = view.findViewById(R.id.container);
+//        container = view.findViewById(R.id.container);
 
         linearLayoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(linearLayoutManager);//默认垂直LinearLayoutManager
@@ -268,7 +276,8 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    container.removeView(netDisconnectedView);
+//                    container.removeView(netDisconnectedView);
+                    smartRefreshLayout.removeView(netDisconnectedView);
                 }
             }, 500);
         }
@@ -284,7 +293,8 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         ViewGroup parent = (ViewGroup) netDisconnectedView.getParent();
         if (parent == null) {
             LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            container.addView(netDisconnectedView, params);
+//            container.addView(netDisconnectedView, params);
+            smartRefreshLayout.addView(netDisconnectedView, params);
             netDisconnectedView.setType(type);
         }
         if (netListener != null) {
