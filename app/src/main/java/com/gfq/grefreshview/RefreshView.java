@@ -109,7 +109,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     }
 
     public void setNoDataPage(@LayoutRes int noDataPageLayout) {
-        this.noDataPage = LayoutInflater.from(context).inflate(noDataPageLayout, null, false);
+        this.noDataPage = LayoutInflater.from(context).inflate(noDataPageLayout, container, true);
     }
 
     public void showNoDataView() {
@@ -233,7 +233,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
     public void setRefreshDataList(List<T> dataList) {
         if (dataList != null && dataList.size() > 0) {
-            refreshView.removeNoDataView();
+            removeNoDataView();
             adapter.refresh(dataList);
             if (vm != null) {
                 vm.onRefresh(dataList);
@@ -250,6 +250,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
     public void setLoadMoreDataList(List<T> dataList) {
         if (dataList != null && dataList.size() > 0) {
+            removeNoDataView();
             adapter.loadMore(dataList);
             smartRefreshLayout.finishLoadMore(true);
             if (vm != null) {
