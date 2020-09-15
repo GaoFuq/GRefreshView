@@ -9,6 +9,10 @@ import android.widget.FrameLayout;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 
+import java.util.List;
+
+import androidx.databinding.ViewDataBinding;
+
 /**
  * @created GaoFuq
  * @Date 2020/6/16 12:54
@@ -81,23 +85,23 @@ import com.scwang.smartrefresh.layout.api.RefreshLayout;
  *         vm.start(refreshView);
  *
  */
-public class RefreshViewHelper<T> {
+public class RefreshViewHelper<T,VB extends ViewDataBinding> {
     private final Context context;
-    private  AllCallBack<T> callBack;
-    private RefreshView<T> refreshView;
-    private RVBindingAdapter<T> adapter;
+    private  AllCallBack<T,VB> callBack;
+    private RefreshView<T,VB> refreshView;
+    private BindingAdapter<T,VB> adapter;
 
-    public RefreshView<T> getRefreshView() {
+    public RefreshView<T,VB> getRefreshView() {
         return refreshView;
     }
 
-    public interface AllCallBack<T>{
-        void requestLoadMore(int currentPage, int pageSize, RefreshLayout layout, RVBindingAdapter<T> adapter);
-        void requestRefresh(int currentPage, int pageSize, RefreshLayout layout, RVBindingAdapter<T> adapter);
-        void setPresentor(SuperBindingViewHolder holder, T data, int position);
+    public interface AllCallBack<T,VB extends ViewDataBinding>{
+        void requestLoadMore(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T,VB> adapter);
+        void requestRefresh(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T,VB> adapter);
+        void bindView(BindingViewHolder<VB> holder, T data, int position);
     }
 
-    public void setCallBack(AllCallBack<T> callBack) {
+    public void setCallBack(AllCallBack<T,VB> callBack) {
         this.callBack = callBack;
     }
 
@@ -106,11 +110,11 @@ public class RefreshViewHelper<T> {
         refreshView = new RefreshView<>(context);
         parent.addView(refreshView);
         View view = LayoutInflater.from(context).inflate(R.layout.refresh_nodata, null, false);
-        refreshView.setNoDataView(view);
+        refreshView.setNoDataPage(view);
         handleNet();
     }
 
-    public RefreshViewHelper<T> setMargin(int dpLeft,int dpTop,int dpRight,int dpBottom){
+    public RefreshViewHelper<T,VB> setMargin(int dpLeft,int dpTop,int dpRight,int dpBottom){
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.leftMargin = DensityUtil.dp2px(dpLeft);
         params.rightMargin = DensityUtil.dp2px(dpRight);
@@ -120,17 +124,32 @@ public class RefreshViewHelper<T> {
         return this;
     }
 
-    public RefreshViewHelper<T> handleRefresh() {
+    public RefreshViewHelper<T,VB> handleRefresh() {
         refreshView.setAdapter(adapter)
-                .setRefreshViewListener(new RefreshView.RefreshViewListener<T>() {
+                .setRefreshViewListener(new RefreshView.RefreshViewListener<T,VB>() {
                     @Override
-                    public void requestLoadMore(int currentPage, int pageSize, RefreshLayout layout, RVBindingAdapter<T> adapter) {
+                    public void requestLoadMore(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T,VB> adapter) {
                         callBack.requestLoadMore(currentPage,pageSize,layout,adapter);
                     }
 
                     @Override
-                    public void requestRefresh(int currentPage, int pageSize, RefreshLayout layout, RVBindingAdapter<T> adapter) {
+                    public void requestLoadMore2(int currentPage, int pageSize) {
+
+                    }
+
+                    @Override
+                    public void requestRefresh(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T,VB> adapter) {
                         callBack.requestRefresh(currentPage,pageSize,layout,adapter);
+                    }
+
+                    @Override
+                    public void requestRefresh2(int currentPage, int pageSize) {
+
+                    }
+
+                    @Override
+                    public void bindView(BindingViewHolder<VB> holder, List<T> dataList, int position) {
+
                     }
                 });
 
@@ -139,12 +158,12 @@ public class RefreshViewHelper<T> {
 
 
 
-    public RefreshViewHelper<T> createAdapter(int itemLayout,int var) {
-        adapter = new RVBindingAdapter<T>(context,var) {
+    public RefreshViewHelper<T,VB> createAdapter(int itemLayout,int var) {
+        adapter = new BindingAdapter<T,VB>(context,var) {
 
             @Override
-            public void onBindView(SuperBindingViewHolder holder, int position) {
-                callBack.setPresentor(holder,getDataList().get(position),position);
+            public void onBindView(BindingViewHolder<VB> holder, int position) {
+                callBack.bindView(holder,getDataList().get(position),position);
             }
 
             @Override
@@ -158,7 +177,7 @@ public class RefreshViewHelper<T> {
 
 
 
-    public RefreshViewHelper<T> handleNet() {
+    public RefreshViewHelper<T,VB> handleNet() {
         //处理网络断开
         refreshView.setNetDisconnectedView(new NetDisconnectedView(context) {
             @Override

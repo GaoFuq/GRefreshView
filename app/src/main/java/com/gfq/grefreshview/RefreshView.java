@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -12,6 +11,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
+import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +22,7 @@ import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -30,26 +31,36 @@ import java.util.List;
  * on {2019/11/5} {10:30}
  * desctapion: 实现自动刷新加载数据
  */
-public class RefreshView<T> extends FrameLayout {
+public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
     private Context context;
 
-    private int currentPage = 0;//当前页
+    private int startPage = 1;
+    private int currentPage = 1;//当前页
     private int pageSize = 10;//每页数据条数
     private int totalPage = 100;//总页数
     private int totalCount = 1000;//数据总量
     private RecyclerView recyclerView;
     private SmartRefreshLayout smartRefreshLayout;
     private NestedScrollView container;
-//    private FrameLayout container;
-    private RVBindingAdapter<T> adapter;
+    private BindingAdapter<T, VB> adapter;
+    private RefreshView<T, VB> refreshView;
     private LinearLayoutManager linearLayoutManager;
 
     private NetDisconnectedView netDisconnectedView;
-    private View noDataView;
+    private View noDataPage;
+    private View errorPage;
+
+    public void setStartPage(int startPage) {
+        this.startPage = startPage;
+    }
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
+    }
+
+    public BindingAdapter<T, VB> getAdapter() {
+        return adapter;
     }
 
     public SmartRefreshLayout getSmartRefreshLayout() {
@@ -87,32 +98,33 @@ public class RefreshView<T> extends FrameLayout {
     public RefreshView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.context = context;
+        refreshView = this;
         initThis();
     }
 
-    public void setNoDataView(View noDataView) {
-        this.noDataView = noDataView;
+    public void setNoDataPage(View noDataPage) {
+        this.noDataPage = noDataPage;
     }
 
     public void showNoDataView() {
         removeNoDataView();
-        container.addView(noDataView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        container.addView(noDataPage, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     }
 
     public void removeNoDataView() {
-        if (noDataView == null) {
+        if (noDataPage == null) {
             return;
         }
-        ViewGroup parent = (ViewGroup) noDataView.getParent();
+        ViewGroup parent = (ViewGroup) noDataPage.getParent();
         if (parent != null) {
-            container.removeView(noDataView);
+            container.removeView(noDataPage);
         }
     }
 
-    public void setData(List<T> data){
-        if(data==null)return;
+    public void setData(List<T> data) {
+        if (data == null) return;
         adapter.refresh(data);
-        currentPage = 2;
+        currentPage = startPage + 1;
     }
 
     private void initThis() {
@@ -156,6 +168,23 @@ public class RefreshView<T> extends FrameLayout {
         });
     }
 
+    public RefreshView<T, VB> createAdapter(int itemLayout, int var) {
+        adapter = new BindingAdapter<T, VB>(context, var) {
+
+            @Override
+            public void onBindView(BindingViewHolder<VB> holder, int position) {
+                refreshViewListener.bindView(holder, getDataList(), position);
+            }
+
+            @Override
+            public int getLayoutId() {
+                return itemLayout;
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        return this;
+    }
+
 
     private void doRefresh(RefreshLayout refreshLayout) {
         if (refreshViewListener != null) {
@@ -163,7 +192,8 @@ public class RefreshView<T> extends FrameLayout {
             if (adapter == null) {
                 return;
             }
-            refreshViewListener.requestRefresh(currentPage, pageSize, refreshLayout, adapter);
+//            refreshViewListener.requestRefresh(currentPage, pageSize, refreshLayout, adapter);
+            refreshViewListener.requestRefresh2(currentPage, pageSize);
 
         }
     }
@@ -179,9 +209,55 @@ public class RefreshView<T> extends FrameLayout {
             if (adapter == null) {
                 return;
             }
-            refreshViewListener.requestLoadMore(currentPage, pageSize, refreshLayout, adapter);
+//            refreshViewListener.requestLoadMore(currentPage, pageSize, refreshLayout, adapter);
+            refreshViewListener.requestLoadMore2(currentPage, pageSize);
         }
     }
+
+    private RefreshVM<T> vm;
+
+    public RefreshVM<T> getVm() {
+        return vm;
+    }
+
+    public RefreshView<T, VB> setVm(RefreshVM<T> vm) {
+        this.vm = vm;
+        return this;
+    }
+
+    public void setRefreshDataList(List<T> dataList) {
+        if (dataList != null && dataList.size() > 0) {
+            refreshView.removeNoDataView();
+            adapter.refresh(dataList);
+            if (vm != null) {
+                vm.onRefresh(dataList);
+            }
+        } else {
+            refreshView.showNoDataView();
+            adapter.refresh(Collections.emptyList());
+            if (vm != null) {
+                vm.onRefresh(Collections.emptyList());
+            }
+        }
+        smartRefreshLayout.finishRefresh(true);
+    }
+
+    public void setLoadMoreDataList(List<T> dataList) {
+        if (dataList != null && dataList.size() > 0) {
+            adapter.loadMore(dataList);
+            smartRefreshLayout.finishLoadMore(true);
+            if (vm != null) {
+                vm.onLoadMore(dataList);
+            }
+        } else {
+            smartRefreshLayout.finishLoadMoreWithNoMoreData();
+        }
+    }
+
+    public void setErrorPage(View errorPage) {
+        this.errorPage = errorPage;
+    }
+
 
     private void removeNetDisconnectedView() {
         if (netDisconnectedView == null) {
@@ -236,32 +312,32 @@ public class RefreshView<T> extends FrameLayout {
     }
 
 
-    public RefreshView<T> setH_LinearLayoutManager() {
+    public RefreshView<T, VB> setH_LinearLayoutManager() {
         linearLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
         recyclerView.setLayoutManager(linearLayoutManager);
         return this;
     }
 
-    public RefreshView<T> setGridLayoutManager(int spanCount, int rowSpacing, int columnSpacing) {
+    public RefreshView<T, VB> setGridLayoutManager(int spanCount, int rowSpacing, int columnSpacing) {
         recyclerView.setLayoutManager(new GridLayoutManager(context, spanCount));
         recyclerView.addItemDecoration(new GridSpaceItemDecoration(spanCount, DensityUtil.dp2px(rowSpacing), DensityUtil.dp2px(columnSpacing)));
         return this;
     }
 
 
-    public RefreshView<T> setGridLayoutManager(int column, int orientation) {
+    public RefreshView<T, VB> setGridLayoutManager(int column, int orientation) {
         recyclerView.setLayoutManager(new GridLayoutManager(context, column, orientation, false));
         return this;
     }
 
 
-    public RefreshView<T> setAdapter(RVBindingAdapter<T> adapter) {
+    public RefreshView<T, VB> setAdapter(BindingAdapter<T, VB> adapter) {
         this.adapter = adapter;
         recyclerView.setAdapter(adapter);
         return this;
     }
 
-    public RefreshView<T> setLayoutManager(RecyclerView.LayoutManager manager) {
+    public RefreshView<T, VB> setLayoutManager(RecyclerView.LayoutManager manager) {
         recyclerView.setLayoutManager(manager);
         return this;
     }
@@ -279,15 +355,21 @@ public class RefreshView<T> extends FrameLayout {
     }
 
 
-    public interface RefreshViewListener<T> {
-        void requestLoadMore(int currentPage, int pageSize, RefreshLayout layout, RVBindingAdapter<T> adapter);
+    public interface RefreshViewListener<T, VB extends ViewDataBinding> {
+        void requestLoadMore(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T, VB> adapter);
 
-        void requestRefresh(int currentPage, int pageSize, RefreshLayout layout, RVBindingAdapter<T> adapter);
+        void requestLoadMore2(int currentPage, int pageSize);
+
+        void requestRefresh(int currentPage, int pageSize, RefreshLayout layout, BindingAdapter<T, VB> adapter);
+
+        void requestRefresh2(int currentPage, int pageSize);
+
+        void bindView(BindingViewHolder<VB> holder, List<T> dataList, int position);
     }
 
-    private RefreshViewListener<T> refreshViewListener;
+    private RefreshViewListener<T, VB> refreshViewListener;
 
-    public void setRefreshViewListener(RefreshViewListener<T> refreshViewListener) {
+    public void setRefreshViewListener(RefreshViewListener<T, VB> refreshViewListener) {
         this.refreshViewListener = refreshViewListener;
     }
 
