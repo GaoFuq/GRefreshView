@@ -109,7 +109,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     }
 
     public void setNoDataPage(@LayoutRes int noDataPageLayout) {
-        this.noDataPage = LayoutInflater.from(context).inflate(noDataPageLayout, container, true);
+        this.noDataPage = LayoutInflater.from(context).inflate(noDataPageLayout, null, false);
     }
 
     public void showNoDataView() {
