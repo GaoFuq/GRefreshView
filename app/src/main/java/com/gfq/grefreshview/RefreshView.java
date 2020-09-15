@@ -31,6 +31,92 @@ import java.util.List;
  * create by 高富强
  * on {2019/11/5} {10:30}
  * desctapion: 实现自动刷新加载数据
+ *
+ * public class MainActivity extends AppCompatActivity {
+ *     @Override
+ *     protected void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
+ *
+ *          // 1. new 对象
+ *         final RefreshView<Bean, ItemTestBinding> refreshView = new RefreshView<>(this);
+ *         setContentView(refreshView);
+ *
+ *
+ *         final List<Bean> list = new ArrayList<>();
+ *
+ *         for (int i = 0; i < 10; i++) {
+ *             Bean bean = new Bean();
+ *             bean.setName("初始数据 --> " + i);
+ *             list.add(bean);
+ *         }
+ *
+ *          //2.初始化 adapter
+ *         refreshView.createAdapter(R.layout.item_test, 0)
+ *         //3. 设置回调
+ *                    .setRefreshViewListener(new RefreshView.RefreshViewListener<Bean, ItemTestBinding>() {
+ *             @Override
+ *             public void requestLoadMore(int currentPage, int pageSize) {
+ *                 List<Bean> list = new ArrayList<>();
+ *                 for (int i = 0; i < 10; i++) {
+ *                     Bean bean = new Bean();
+ *                     bean.setName("初始数据 --> " + i);
+ *                     list.add(bean);
+ *                 }
+ *                 refreshView.setLoadMoreDataList(list);
+ *             }
+ *
+ *
+ *             @Override
+ *             public void requestRefresh(int currentPage, int pageSize) {
+ *                 refreshView.setRefreshDataList(null);
+ *             }
+ *
+ *             @Override
+ *             public void bindView(BindingViewHolder<ItemTestBinding> holder, final List<Bean> dataList, final int position) {
+ *                 ItemTestBinding binding = holder.getBinding();
+ *                 binding.xx.setText(dataList.get(position).getName());
+ *                 if (dataList.get(position).isSelected()) {
+ *                     holder.itemView.setBackgroundColor(0xff456852);
+ *                 } else {
+ *                     holder.itemView.setBackgroundColor(0xffffffff);
+ *                 }
+ *                 holder.itemView.setOnClickListener(new View.OnClickListener() {
+ *                     @Override
+ *                     public void onClick(View v) {
+ *                         dataList.get(position).setSelected(!dataList.get(position).isSelected());
+ *                         refreshView.notifyAdapterDataSetChanged();
+ *                     }
+ *                 });
+ *             }
+ *         });
+ *         refreshView.setNoDataPage(R.layout.item_test);
+ *         refreshView.autoRefresh();
+ *     }
+ *
+ *
+ *     public static class Bean {
+ *         boolean selected;
+ *         String name;
+ *
+ *         public boolean isSelected() {
+ *             return selected;
+ *         }
+ *
+ *         public Bean setSelected(boolean selected) {
+ *             this.selected = selected;
+ *             return this;
+ *         }
+ *
+ *         public String getName() {
+ *             return name;
+ *         }
+ *
+ *         public Bean setName(String name) {
+ *             this.name = name;
+ *             return this;
+ *         }
+ *     }
+ * }
  */
 public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
