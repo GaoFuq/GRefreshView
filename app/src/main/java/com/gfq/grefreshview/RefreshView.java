@@ -128,7 +128,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     private BindingAdapter<T, VB> adapter;
     private RefreshView<T, VB> refreshView;
     private LinearLayoutManager linearLayoutManager;
-    private RefreshStatus status = RefreshStatus.nothing;
+    private RefreshStatus status = RefreshStatus.refresh;
 
     private View noNetPage;
     private View noDataPage;
@@ -241,6 +241,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         smartRefreshLayout.setOnRefreshLoadMoreListener(new OnRefreshLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+                status = RefreshStatus.loadMore;
                 if (isNetworkConnected(context.getApplicationContext())) {
                     removeNetDisconnectedView();
                     doLoadMore(refreshLayout);
@@ -253,6 +254,7 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
             @Override
             public void onRefresh(@NonNull RefreshLayout refreshLayout) {
+                status = RefreshStatus.refresh;
                 if (isNetworkConnected(context.getApplicationContext())) {
                     removeNetDisconnectedView();
                     doRefresh(refreshLayout);
@@ -375,7 +377,6 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
     }
 
     private void addNoNetPage(RefreshStatus refreshStatus) {
-        status = refreshStatus;
         if (noNetPage == null) {
             return;
         }
