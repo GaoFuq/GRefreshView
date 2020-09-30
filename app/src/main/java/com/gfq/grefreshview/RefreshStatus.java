@@ -1,5 +1,5 @@
 package com.gfq.grefreshview;
 
-enum RefreshStatus {
+public enum RefreshStatus {
     loadMore, refresh,nothing
 }
