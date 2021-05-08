@@ -117,7 +117,6 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
 
     private Context context;
 
-    private int startPage = 1;
     private int currentPage = 1;//当前页
     private int pageSize = 10;//每页数据条数
     private int totalPage = 100;//总页数
@@ -138,9 +137,6 @@ public class RefreshView<T, VB extends ViewDataBinding> extends FrameLayout {
         return status;
     }
 
-    public void setStartPage(int startPage) {
-        this.startPage = startPage;
-    }
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
